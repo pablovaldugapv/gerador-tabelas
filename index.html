@@ -703,7 +703,7 @@
               <div id="saud-th" class="switch-thumb"></div>
             </div>
             <span style="font-size:13px;color:var(--color-text-primary);font-weight:500;">
-              Adicionar mensagem de "Bom dia"
+              Adicionar saudação inicial
             </span>
           </div>
 
@@ -1050,7 +1050,9 @@
         out=`📅 ${dt} | ${nm} | ${frMode}\n\n${getLbl(v1)}\n${bL(p1,true)}\n\n${getLbl(v2)}\n${bL(p2,true)}`;
       }
       if(SAUD){
-        out=`Bom dia!\nTudo bem?\nSeguem preços de hoje:\n\n`+out;
+        const hr = new Date().getHours();
+        const saudTxt = hr >= 12 && hr < 18 ? 'Boa tarde!' : (hr >= 18 || hr < 5 ? 'Boa noite!' : 'Bom dia!');
+        out=`${saudTxt}\nTudo bem?\nSeguem preços de hoje:\n\n`+out;
       }
       $('out').textContent=out;
     }
