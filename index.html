@@ -377,6 +377,7 @@
       align-items: center;
       justify-content: space-between;
       margin-bottom: 12px;
+      gap: 8px;
     }
 
     .window-controls {
@@ -429,6 +430,35 @@
 
     .btn-copy:active {
       transform: translateY(0);
+    }
+
+    .btn-saud {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      background: var(--color-background-secondary);
+      border: 1px solid var(--color-border-secondary);
+      color: var(--color-text-secondary);
+      border-radius: var(--border-radius-sm);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .btn-saud:hover {
+      color: var(--color-text-primary);
+      background: rgba(255, 255, 255, 0.03);
+      border-color: var(--color-border-primary);
+    }
+
+    .btn-saud.active {
+      background: var(--color-primary) !important;
+      color: #ffffff !important;
+      border-color: var(--color-primary) !important;
+      box-shadow: 0 0 8px var(--color-primary-glow);
     }
 
     /* Output Pre Box */
@@ -697,15 +727,6 @@
             </div>
           </div>
 
-          <!-- Saudação Toggle Mode -->
-          <div class="switch-row" onclick="togSaud()" style="margin-bottom: 8px;">
-            <div id="saud-tk" class="switch-track" aria-hidden="true">
-              <div id="saud-th" class="switch-thumb"></div>
-            </div>
-            <span style="font-size:13px;color:var(--color-text-primary);font-weight:500;">
-              Adicionar saudação inicial
-            </span>
-          </div>
 
           <!-- ICMS Toggle Mode -->
           <div class="switch-row" onclick="togIcms()" style="margin-bottom: 8px;">
@@ -749,6 +770,9 @@
             <span class="dot green"></span>
             <span class="window-title">Tabela Gerada</span>
           </div>
+          <button id="btn-saud" onclick="togSaud()" class="btn-saud">
+            <i class="ti ti-message-2" aria-hidden="true"></i>Saudação
+          </button>
           <button id="cbtn" onclick="cpOut()" class="btn-copy">
             <i class="ti ti-copy" style="font-size:15px;" aria-hidden="true"></i>Copiar
           </button>
@@ -844,19 +868,7 @@
 
     function togSaud() {
       SAUD = !SAUD;
-      const tk = $('saud-tk');
-      const th = $('saud-th');
-      if (SAUD) {
-        tk.style.backgroundColor = 'var(--color-primary)';
-        tk.style.borderColor = 'var(--color-primary)';
-        th.style.transform = 'translateX(18px)';
-        th.style.backgroundColor = '#ffffff';
-      } else {
-        tk.style.backgroundColor = 'var(--color-background-secondary)';
-        tk.style.borderColor = 'var(--color-border-secondary)';
-        th.style.transform = 'translateX(0)';
-        th.style.backgroundColor = 'var(--color-text-secondary)';
-      }
+      $('btn-saud').classList.toggle('active', SAUD);
       gen();
     }
 
