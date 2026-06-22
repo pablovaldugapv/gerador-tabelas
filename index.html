@@ -655,8 +655,22 @@
 
           <!-- Valor do Frete Input -->
           <div id="frete-row" style="display:none;">
-            <p class="flbl">Valor do Frete (R$/L)</p>
-            <input id="frete-val" type="number" step="0.0001" placeholder="0,0000" style="width:100%;" oninput="gen()">
+            <div id="frete-single-box">
+              <p class="flbl">Valor do Frete (R$/L)</p>
+              <input id="frete-val" type="number" step="0.0001" placeholder="0,0000" style="width:100%;" oninput="gen()">
+            </div>
+            <div id="frete-double-box" style="display:none;">
+              <div style="display:flex;gap:8px;align-items:center;">
+                <div style="flex:1;">
+                  <p class="flbl" id="lbl-frete1">Frete Base 1 (R$/L)</p>
+                  <input id="frete-val1" type="number" step="0.0001" placeholder="0,0000" style="width:100%;" oninput="gen()">
+                </div>
+                <div style="flex:1;">
+                  <p class="flbl" id="lbl-frete2">Frete Base 2 (R$/L)</p>
+                  <input id="frete-val2" type="number" step="0.0001" placeholder="0,0000" style="width:100%;" oninput="gen()">
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Payment Terms -->
@@ -681,6 +695,16 @@
               <span style="color:var(--color-text-secondary);font-weight:600;">+</span>
               <select id="prazo2" onchange="gen()" class="sel" style="flex:1;" aria-label="Segundo prazo"></select>
             </div>
+          </div>
+
+          <!-- Saudação Toggle Mode -->
+          <div class="switch-row" onclick="togSaud()" style="margin-bottom: 8px;">
+            <div id="saud-tk" class="switch-track" aria-hidden="true">
+              <div id="saud-th" class="switch-thumb"></div>
+            </div>
+            <span style="font-size:13px;color:var(--color-text-primary);font-weight:500;">
+              Adicionar mensagem de "Bom dia"
+            </span>
           </div>
 
           <!-- ICMS Toggle Mode -->
@@ -765,9 +789,10 @@
       F = f;
       $('f-fob').classList.toggle('active', f === 'fob');
       $('f-cif').classList.toggle('active', f === 'cif');
-      $('frete-row').style.display = f === 'cif' ? '' : 'none';
       if (f === 'fob') {
         $('frete-val').value = '';
+        $('frete-val1').value = '';
+        $('frete-val2').value = '';
       }
       gen();
     }
@@ -817,12 +842,30 @@
       gen();
     }
 
+    function togSaud() {
+      SAUD = !SAUD;
+      const tk = $('saud-tk');
+      const th = $('saud-th');
+      if (SAUD) {
+        tk.style.backgroundColor = 'var(--color-primary)';
+        tk.style.borderColor = 'var(--color-primary)';
+        th.style.transform = 'translateX(18px)';
+        th.style.backgroundColor = '#ffffff';
+      } else {
+        tk.style.backgroundColor = 'var(--color-background-secondary)';
+        tk.style.borderColor = 'var(--color-border-secondary)';
+        th.style.transform = 'translateX(0)';
+        th.style.backgroundColor = 'var(--color-text-secondary)';
+      }
+      gen();
+    }
+
     // Original Widget Scripting
     const PRAZO={3:.002,4:.0027,5:.0033,6:.004,7:.0047,8:.0053,9:.006,10:.0067,11:.0073,12:.008,13:.0087,14:.0093,15:.01,16:.0133,17:.0142,18:.015,19:.0158,20:.0167,21:.0175,22:.0183,23:.0192,24:.02,25:.0208,26:.0217,27:.0225,28:.0233,29:.0242,30:.025};
     const BASES={araucaria:{nome:'ARAUCÁRIA',pre:'ara',temEt:true},sarandi:{nome:'SARANDI',pre:'sar',temEt:true},cascavel:{nome:'CASCAVEL',pre:'cas',temEt:true},itajai:{nome:'ITAJAÍ',pre:'ita',temEt:true},paulinia:{nome:'PAULÍNIA',pre:'pau',temEt:false}};
     const PRAZOS_OPTS=[{value:'ant',display:'À Vista (sem juros)'},{value:'1',display:'1 dia (sem juros)'},{value:'2',display:'2 dias (sem juros)'},...Array.from({length:28},(_,i)=>({value:String(i+3),display:`${i+3} dias — +${(PRAZO[i+3]*100).toFixed(2)}%`}))];
     
-    let U='araucaria',T='a-vista',TRR=false,F='fob',ICMS=false,BAND=false;
+    let U='araucaria',T='a-vista',TRR=false,F='fob',ICMS=false,BAND=false,SAUD=false;
     
     const c4=v=>Math.ceil(v*10000)/10000,f4=v=>v.toFixed(4),adt=(v,diff=0.02)=>Math.round((v+diff)*10000)/10000,toN=s=>parseFloat(s)||0,$=id=>document.getElementById(id);
     
@@ -914,14 +957,13 @@
     
     function gv(id){return toN($(id)?$(id).value:0);}
     
-    function calcB(base,pct){
+    function calcB(base,pct,fr){
       const cfg=BASES[base],p=cfg.pre;
       const isB = BAND && (base === 'araucaria' || base === 'cascavel');
       const suffix = isB ? '-b' : '';
       const adtDiff = isB ? 0.03 : 0.02;
       
       const ap=v=>pct!=null?c4(v*(1+pct)):v;
-      const fr=F==='cif'?toN($('frete-val').value):0;
       
       const gc=c4(ap(gv(p+'-gc'+suffix))+fr);
       const b5=c4(ap(gv(p+'-bs500'+suffix))+fr);
@@ -946,8 +988,31 @@
       if(!TRR&&pr.et!=null) compact?L.push(`⛽ ${f4(pr.et)} ETANOL`):L.push(` ⛽R$ ${f4(pr.et)} ETANOL`);
       return L.join('\n');
     }
+
+    function getBaseNome(b) {
+      if (!BASES[b]) return '';
+      const n = BASES[b].nome;
+      return n.charAt(0) + n.slice(1).toLowerCase();
+    }
+    
+    function updateFreteUI() {
+      const isCIF = F === 'cif';
+      $('frete-row').style.display = isCIF ? '' : 'none';
+      if (isCIF) {
+        const isDuas = U === 'duas';
+        $('frete-single-box').style.display = isDuas ? 'none' : '';
+        $('frete-double-box').style.display = isDuas ? '' : 'none';
+        if (isDuas) {
+          const b1 = $('base1').value;
+          const b2 = $('base2').value;
+          $('lbl-frete1').textContent = `Frete ${getBaseNome(b1)} (R$/L)`;
+          $('lbl-frete2').textContent = `Frete ${getBaseNome(b2)} (R$/L)`;
+        }
+      }
+    }
     
     function gen(){
+      updateFreteUI();
       const dt=$('date').value;
       const frMode = F === 'cif' ? 'CIF' : 'FOB';
       let out='';
@@ -959,23 +1024,33 @@
         const nm2=BASES[b2].nome + (isB2 ? ' - BANDEIRADO' : '');
         const pct=T==='a-vista'?null:getPct($('dias').value);
         const hdr=T==='a-vista'?`📅 ${dt} | ${frMode} - *À VISTA*`:`📅 ${dt} | ${frMode} | PRAZO *${$('dias').value} ${parseInt($('dias').value)===1?'DIA':'DIAS'}*`;
-        const p1=calcB(b1,pct),p2=calcB(b2,pct);
+        const fr1=F==='cif'?toN($('frete-val1').value):0;
+        const fr2=F==='cif'?toN($('frete-val2').value):0;
+        const p1=calcB(b1,pct,fr1),p2=calcB(b2,pct,fr2);
         out=`${hdr}\n\n📍 ${nm1}\n${bL(p1,true)}\n\n📍 ${nm2}\n${bL(p2,true)}`;
       }else if(T==='a-vista'){
         const isBU = BAND && (U==='araucaria' || U==='cascavel');
         const nm=BASES[U].nome + (isBU ? ' - BANDEIRADO' : '');
-        const pr=calcB(U,null);
+        const fr=F==='cif'?toN($('frete-val').value):0;
+        const pr=calcB(U,null,fr);
         out=`UNIDADE: ${nm} ${dt}\nFRETE: ${frMode} - *À VISTA*\n\n${bL(pr,false)}`;
       }else if(T==='prazo'){
         const isBU = BAND && (U==='araucaria' || U==='cascavel');
         const nm=BASES[U].nome + (isBU ? ' - BANDEIRADO' : '');
-        const val=$('dias').value,pct=getPct(val),pr=calcB(U,pct),d=parseInt(val);
+        const val=$('dias').value,pct=getPct(val);
+        const fr=F==='cif'?toN($('frete-val').value):0;
+        const pr=calcB(U,pct,fr),d=parseInt(val);
         out=`UNIDADE: ${nm} ${dt}\nFRETE: ${frMode}\nPRAZO: *${d} ${d===1?'DIA':'DIAS'}*\n\n${bL(pr,false)}`;
       }else if(T==='dois'){
         const isBU = BAND && (U==='araucaria' || U==='cascavel');
         const nm=BASES[U].nome + (isBU ? ' - BANDEIRADO' : '');
-        const v1=$('prazo1').value,v2=$('prazo2').value,p1=calcB(U,getPct(v1)),p2=calcB(U,getPct(v2));
+        const v1=$('prazo1').value,v2=$('prazo2').value;
+        const fr=F==='cif'?toN($('frete-val').value):0;
+        const p1=calcB(U,getPct(v1),fr),p2=calcB(U,getPct(v2),fr);
         out=`📅 ${dt} | ${nm} | ${frMode}\n\n${getLbl(v1)}\n${bL(p1,true)}\n\n${getLbl(v2)}\n${bL(p2,true)}`;
+      }
+      if(SAUD){
+        out=`Bom dia!\nTudo bem?\nSeguem preços de hoje:\n\n`+out;
       }
       $('out').textContent=out;
     }
