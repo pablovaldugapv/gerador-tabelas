@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerador de Tabelas de Preços | Estrada Distribuidora</title>
+  <meta name="description" content="Gerador interno de tabelas de preços de combustíveis da Estrada Distribuidora de Combustíveis.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  
+  <style>
+    :root {
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+      
+      /* Dark Theme Settings */
+      --color-bg-page: #0b0f19;
+      --color-background-primary: #151c2c;
+      --color-background-secondary: #1f293d;
+      --color-background-tertiary: #0e1320;
+      
+      --color-border-primary: #374151;
+      --color-border-secondary: #2d3748;
+      --color-border-tertiary: #1e293b;
+      
+      --color-text-primary: #f3f4f6;
+      --color-text-secondary: #9ca3af;
+      --color-text-tertiary: #6b7280;
+      
+      --border-radius-sm: 8px;
+      --border-radius-md: 12px;
+      --border-radius-lg: 20px;
+      
+      --color-primary: #3b82f6;
+      --color-primary-hover: #60a5fa;
+      --color-primary-glow: rgba(59, 130, 246, 0.15);
+      
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.5);
+    }
+
+    [data-theme="light"] {
+      /* Light Theme Settings */
+      --color-bg-page: #f8fafc;
+      --color-background-primary: #ffffff;
+      --color-background-secondary: #f1f5f9;
+      --color-background-tertiary: #f8fafc;
+      
+      --color-border-primary: #cbd5e1;
+      --color-border-secondary: #e2e8f0;
+      --color-border-tertiary: #e2e8f0;
+      
+      --color-text-primary: #0f172a;
+      --color-text-secondary: #475569;
+      --color-text-tertiary: #64748b;
+      
+      --color-primary: #2563eb;
+      --color-primary-hover: #1d4ed8;
+      --color-primary-glow: rgba(37, 99, 235, 0.1);
+      
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.03), 0 4px 6px -4px rgba(0, 0, 0, 0.03);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 40px 20px;
+      background-color: var(--color-bg-page);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.06) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(245, 158, 11, 0.03) 0px, transparent 50%);
+      color: var(--color-text-primary);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 1000px;
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-border-secondary);
+      border-radius: var(--border-radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-lg);
+      backdrop-filter: blur(8px);
+    }
+
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--color-border-tertiary);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, var(--color-primary), #f59e0b);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-size: 22px;
+      box-shadow: 0 4px 10px rgba(59, 130, 246, 0.25);
+    }
+
+    .brand-info h1 {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0;
+      color: var(--color-text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .brand-info p {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      margin: 2px 0 0 0;
+      font-weight: 500;
+    }
+
+    .app-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-theme-toggle {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--border-radius-sm);
+      border: 1px solid var(--color-border-secondary);
+      background: var(--color-background-secondary);
+      color: var(--color-text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-theme-toggle:hover {
+      color: var(--color-text-primary);
+      background: var(--color-background-primary);
+      border-color: var(--color-border-primary);
+    }
+
+    /* Grid Layout */
+    .mgrid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    @media (min-width: 768px) {
+      .mgrid {
+        grid-template-columns: 1.15fr 0.85fr;
+      }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-border-secondary);
+      border-radius: var(--border-radius-md);
+      padding: 18px;
+      box-shadow: var(--shadow-sm);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      border-color: var(--color-border-primary);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* Headings & Labels */
+    .slbl {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    .flbl {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+      margin: 0 0 8px;
+    }
+
+    /* Input rows */
+    .ir {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .ir label {
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      width: 60px;
+      flex-shrink: 0;
+    }
+
+    .ir input, input[type="text"], input[type="number"] {
+      flex: 1;
+      font-family: var(--font-mono);
+      font-size: 13.5px;
+      background: var(--color-background-secondary);
+      border: 1px solid var(--color-border-secondary);
+      border-radius: var(--border-radius-sm);
+      padding: 8px 12px;
+      color: var(--color-text-primary);
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .ir input:focus, input[type="text"]:focus, select:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-glow);
+    }
+
+    .hdiv {
+      border: none;
+      border-top: 1px solid var(--color-border-secondary);
+      margin: 12px 0;
+    }
+
+    .icms-note {
+      font-size: 11px;
+      color: var(--color-text-tertiary);
+      margin: -6px 0 6px 72px;
+      font-style: italic;
+    }
+
+    /* Tabs Header */
+    .tabs-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      background: var(--color-background-secondary);
+      padding: 4px;
+      border-radius: var(--border-radius-md);
+      margin-bottom: 16px;
+    }
+
+    .ptab {
+      padding: 6px 12px;
+      border-radius: var(--border-radius-sm);
+      font-size: 12px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      white-space: nowrap;
+      flex: 1;
+      text-align: center;
+    }
+
+    .ptab.on {
+      background: var(--color-background-primary);
+      color: var(--color-text-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .ptab.off {
+      background: transparent;
+      color: var(--color-text-secondary);
+    }
+
+    .ptab.off:hover {
+      color: var(--color-text-primary);
+      background: rgba(255, 255, 255, 0.03);
+    }
+    
+    [data-theme="light"] .ptab.off:hover {
+      background: rgba(0, 0, 0, 0.03);
+    }
+
+    /* Segmented Controls */
+    .seg-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    @media (max-width: 480px) {
+      .seg-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .seg {
+      padding: 8px 10px;
+      border-radius: var(--border-radius-sm);
+      font-size: 12px;
+      font-weight: 500;
+      border: 1px solid var(--color-border-secondary);
+      background: var(--color-background-primary);
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    .seg:hover {
+      background: var(--color-background-secondary);
+      color: var(--color-text-primary);
+    }
+
+    .seg.active {
+      background: var(--color-primary) !important;
+      color: #ffffff !important;
+      border-color: var(--color-primary) !important;
+      box-shadow: 0 0 10px var(--color-primary-glow);
+    }
+
+    /* Select elements */
+    .sel {
+      background: var(--color-background-secondary);
+      border: 1px solid var(--color-border-secondary);
+      border-radius: var(--border-radius-sm);
+      padding: 8px 12px;
+      color: var(--color-text-primary);
+      outline: none;
+      cursor: pointer;
+      font-size: 13px;
+      font-family: var(--font-sans);
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 16px;
+      padding-right: 36px;
+      transition: all 0.2s ease;
+    }
+
+    [data-theme="light"] .sel {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+    }
+
+    /* macOS Terminal Window for table output */
+    .terminal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .window-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .window-controls .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .window-controls .dot.red { background-color: #ff5f56; }
+    .window-controls .dot.yellow { background-color: #ffbd2e; }
+    .window-controls .dot.green { background-color: #27c93f; }
+
+    .window-title {
+      margin-left: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-text-secondary);
+    }
+
+    /* Buttons */
+    .btn-copy {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 14px;
+      background: var(--color-primary);
+      color: #ffffff;
+      border: none;
+      border-radius: var(--border-radius-sm);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-copy:hover {
+      background: var(--color-primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-copy:active {
+      transform: translateY(0);
+    }
+
+    /* Output Pre Box */
+    .terminal-body {
+      background: var(--color-background-tertiary);
+      border: 1px solid var(--color-border-secondary);
+      border-radius: var(--border-radius-md);
+      padding: 16px;
+      overflow: auto;
+      min-height: 280px;
+    }
+
+    #out {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--color-text-primary);
+      white-space: pre-wrap;
+      line-height: 1.65;
+      margin: 0;
+    }
+
+    /* Switch styling overrides */
+    .switch-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      user-select: none;
+      padding: 6px 0;
+    }
+
+    .switch-track {
+      position: relative;
+      width: 38px;
+      height: 20px;
+      border-radius: 10px;
+      background: var(--color-background-secondary);
+      border: 1px solid var(--color-border-secondary);
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .switch-thumb {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 14px;
+      height: 14px;
+      background: var(--color-text-secondary);
+      border-radius: 50%;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Screen reader class */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-logo" aria-hidden="true">
+          <i class="ti ti-droplet-filled"></i>
+        </div>
+        <div class="brand-info">
+          <h1>Estrada Distribuidora</h1>
+          <p>Gerador de Tabelas de Preços</p>
+        </div>
+      </div>
+      <div class="app-actions">
+        <button class="btn-theme-toggle" onclick="toggleTheme()" aria-label="Alternar tema">
+          <i class="ti ti-sun" id="theme-icon-sun"></i>
+          <i class="ti ti-moon" id="theme-icon-moon" style="display: none;"></i>
+        </button>
+      </div>
+    </header>
+
+    <h2 class="sr-only">Gerador de tabelas de preços de combustível</h2>
+
+    <!-- Main Grid -->
+    <div class="mgrid">
+      <!-- Controls Column -->
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        
+        <!-- Date Card -->
+        <div class="card">
+          <label for="date" class="flbl">Data</label>
+          <input id="date" type="text" placeholder="DD/MM/AAAA" style="width:100%;" oninput="gen()">
+        </div>
+
+        <!-- Base Tabs Card -->
+        <div class="card">
+          <span class="slbl">Bases</span>
+          <div class="tabs-wrapper">
+            <button class="ptab on" id="pt-araucaria" onclick="swTab('araucaria')">Araucária</button>
+            <button class="ptab off" id="pt-sarandi" onclick="swTab('sarandi')">Sarandi</button>
+            <button class="ptab off" id="pt-cascavel" onclick="swTab('cascavel')">Cascavel</button>
+            <button class="ptab off" id="pt-itajai" onclick="swTab('itajai')">Itajaí</button>
+            <button class="ptab off" id="pt-paulinia" onclick="swTab('paulinia')">Paulínia</button>
+          </div>
+          
+          <div id="pane-araucaria">
+            <!-- Standard Inputs -->
+            <div class="std-prices">
+              <div class="ir"><label for="ara-gc">GAS C</label><input id="ara-gc" value="5.9500" oninput="gen()"></div>
+              <div class="ir"><label for="ara-bs500">BS500</label><input id="ara-bs500" value="5.1500" oninput="gen()"></div>
+              <div class="ir"><label for="ara-bs10">BS10</label><input id="ara-bs10" value="5.8500" oninput="gen()"></div>
+              <div class="ir"><label for="ara-etanol">Etanol</label><input id="ara-etanol" value="3.1500" oninput="gen()"></div>
+            </div>
+            <!-- Branded Inputs -->
+            <div class="band-prices" style="display:none;">
+              <div class="ir"><label for="ara-gc-b">GAS C (B)</label><input id="ara-gc-b" value="5.3190" oninput="gen()"></div>
+              <div class="ir"><label for="ara-bs500-b">BS500 (B)</label><input id="ara-bs500-b" value="5.1500" oninput="gen()"></div>
+              <div class="ir"><label for="ara-bs10-b">BS10 (B)</label><input id="ara-bs10-b" value="5.8500" oninput="gen()"></div>
+              <div class="ir"><label for="ara-etanol-b">Etanol (B)</label><input id="ara-etanol-b" value="3.1500" oninput="gen()"></div>
+            </div>
+            <hr class="hdiv icms-element" style="display:none;">
+            <div class="ir icms-element" style="display:none;"><label for="ara-icms">ICMS</label><input id="ara-icms" value="0.2600" oninput="gen()"></div>
+            <p class="icms-note icms-element" style="display:none;">complemento PR/SP no etanol</p>
+          </div>
+          <div id="pane-sarandi" style="display:none;">
+            <div class="ir"><label for="sar-gc">GAS C</label><input id="sar-gc" value="6.1000" oninput="gen()"></div>
+            <div class="ir"><label for="sar-bs500">BS500</label><input id="sar-bs500" value="5.2500" oninput="gen()"></div>
+            <div class="ir"><label for="sar-bs10">BS10</label><input id="sar-bs10" value="6.0500" oninput="gen()"></div>
+            <div class="ir"><label for="sar-etanol">Etanol</label><input id="sar-etanol" value="3.1000" oninput="gen()"></div>
+            <hr class="hdiv icms-element" style="display:none;">
+            <div class="ir icms-element" style="display:none;"><label for="sar-icms">ICMS</label><input id="sar-icms" value="0.2947" oninput="gen()"></div>
+            <p class="icms-note icms-element" style="display:none;">complemento PR/SC no etanol</p>
+          </div>
+          <div id="pane-cascavel" style="display:none;">
+            <!-- Standard Inputs -->
+            <div class="std-prices">
+              <div class="ir"><label for="cas-gc">GAS C</label><input id="cas-gc" value="6.0000" oninput="gen()"></div>
+              <div class="ir"><label for="cas-bs500">BS500</label><input id="cas-bs500" value="5.3500" oninput="gen()"></div>
+              <div class="ir"><label for="cas-bs10">BS10</label><input id="cas-bs10" value="6.1000" oninput="gen()"></div>
+              <div class="ir"><label for="cas-etanol">Etanol</label><input id="cas-etanol" value="3.1900" oninput="gen()"></div>
+            </div>
+            <!-- Branded Inputs -->
+            <div class="band-prices" style="display:none;">
+              <div class="ir"><label for="cas-gc-b">GAS C (B)</label><input id="cas-gc-b" value="5.4150" oninput="gen()"></div>
+              <div class="ir"><label for="cas-bs500-b">BS500 (B)</label><input id="cas-bs500-b" value="5.3500" oninput="gen()"></div>
+              <div class="ir"><label for="cas-bs10-b">BS10 (B)</label><input id="cas-bs10-b" value="6.1000" oninput="gen()"></div>
+              <div class="ir"><label for="cas-etanol-b">Etanol (B)</label><input id="cas-etanol-b" value="3.1900" oninput="gen()"></div>
+            </div>
+            <hr class="hdiv icms-element" style="display:none;">
+            <div class="ir icms-element" style="display:none;"><label for="cas-icms">ICMS</label><input id="cas-icms" value="0.2600" oninput="gen()"></div>
+            <p class="icms-note icms-element" style="display:none;">complemento PR/SP no etanol</p>
+          </div>
+          <div id="pane-itajai" style="display:none;">
+            <div class="ir"><label for="ita-gc">GAS C</label><input id="ita-gc" value="5.8000" oninput="gen()"></div>
+            <div class="ir"><label for="ita-bs500">BS500</label><input id="ita-bs500" value="5.2000" oninput="gen()"></div>
+            <div class="ir"><label for="ita-bs10">BS10</label><input id="ita-bs10" value="5.9000" oninput="gen()"></div>
+            <div class="ir"><label for="ita-etanol">Etanol</label><input id="ita-etanol" value="3.4500" oninput="gen()"></div>
+            <hr class="hdiv icms-element" style="display:none;">
+            <div class="ir icms-element" style="display:none;"><label for="ita-icms">ICMS</label><input id="ita-icms" value="0.0000" oninput="gen()"></div>
+            <p class="icms-note icms-element" style="display:none;">complemento SC/SP no etanol</p>
+          </div>
+          <div id="pane-paulinia" style="display:none;">
+            <div class="ir"><label for="pau-gc">GAS C</label><input id="pau-gc" value="5.6500" oninput="gen()"></div>
+            <div class="ir"><label for="pau-bs500">BS500</label><input id="pau-bs500" value="5.2500" oninput="gen()"></div>
+            <div class="ir"><label for="pau-bs10">BS10</label><input id="pau-bs10" value="6.0500" oninput="gen()"></div>
+          </div>
+        </div>
+
+        <!-- Configurations Card -->
+        <div class="card" style="display:flex;flex-direction:column;gap:16px;">
+          <span class="slbl">Configurações</span>
+          
+          <!-- Base / Unidade Selection -->
+          <div>
+            <p class="flbl">Unidade de Preços</p>
+            <div class="seg-grid">
+              <button class="seg active" id="u-araucaria" onclick="setU('araucaria')">Araucária</button>
+              <button class="seg" id="u-sarandi" onclick="setU('sarandi')">Sarandi</button>
+              <button class="seg" id="u-cascavel" onclick="setU('cascavel')">Cascavel</button>
+              <button class="seg" id="u-itajai" onclick="setU('itajai')">Itajaí</button>
+              <button class="seg" id="u-paulinia" onclick="setU('paulinia')">Paulínia</button>
+              <button class="seg" id="u-duas" onclick="setU('duas')">Duas bases</button>
+            </div>
+          </div>
+
+          <!-- Dual Bases Option -->
+          <div id="duas-row" style="display:none;">
+            <p class="flbl">Selecionar as duas bases</p>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <select id="base1" onchange="gen()" class="sel" style="flex:1;" aria-label="Primeira base">
+                <option value="araucaria" selected>Araucária</option>
+                <option value="sarandi">Sarandi</option>
+                <option value="cascavel">Cascavel</option>
+                <option value="itajai">Itajaí</option>
+                <option value="paulinia">Paulínia</option>
+              </select>
+              <span style="color:var(--color-text-secondary);font-weight:600;">+</span>
+              <select id="base2" onchange="gen()" class="sel" style="flex:1;" aria-label="Segunda base">
+                <option value="araucaria">Araucária</option>
+                <option value="sarandi" selected>Sarandi</option>
+                <option value="cascavel">Cascavel</option>
+                <option value="itajai">Itajaí</option>
+                <option value="paulinia">Paulínia</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Frete Selection -->
+          <div>
+            <p class="flbl">Frete</p>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
+              <button class="seg active" id="f-fob" onclick="setF('fob')">FOB (Retira)</button>
+              <button class="seg" id="f-cif" onclick="setF('cif')">CIF (Entregue)</button>
+            </div>
+          </div>
+
+          <!-- Valor do Frete Input -->
+          <div id="frete-row" style="display:none;">
+            <p class="flbl">Valor do Frete (R$/L)</p>
+            <input id="frete-val" type="number" step="0.0001" placeholder="0,0000" style="width:100%;" oninput="gen()">
+          </div>
+
+          <!-- Payment Terms -->
+          <div>
+            <p class="flbl">Forma de Pagamento</p>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              <button class="seg active" id="t-a-vista" onclick="setT('a-vista')">À Vista</button>
+              <button class="seg" id="t-prazo" onclick="setT('prazo')">Prazo</button>
+              <button class="seg" id="t-dois" onclick="setT('dois')">2 Prazos</button>
+            </div>
+          </div>
+
+          <!-- Deadline Rows -->
+          <div id="prazo-row" style="display:none;">
+            <p class="flbl">Prazo</p>
+            <select id="dias" onchange="gen()" class="sel" style="width:100%;" aria-label="Quantidade de dias para prazo"></select>
+          </div>
+          <div id="dois-row" style="display:none;">
+            <p class="flbl">Selecionar os dois prazos</p>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <select id="prazo1" onchange="gen()" class="sel" style="flex:1;" aria-label="Primeiro prazo"></select>
+              <span style="color:var(--color-text-secondary);font-weight:600;">+</span>
+              <select id="prazo2" onchange="gen()" class="sel" style="flex:1;" aria-label="Segundo prazo"></select>
+            </div>
+          </div>
+
+          <!-- ICMS Toggle Mode -->
+          <div class="switch-row" onclick="togIcms()" style="margin-bottom: 8px;">
+            <div id="icms-tk" class="switch-track" aria-hidden="true">
+              <div id="icms-th" class="switch-thumb"></div>
+            </div>
+            <span style="font-size:13px;color:var(--color-text-primary);font-weight:500;">
+              Adicionar ICMS no Etanol
+            </span>
+          </div>
+
+          <!-- Bandeirado Toggle Mode -->
+          <div class="switch-row" onclick="togBand()" style="margin-bottom: 8px;">
+            <div id="band-tk" class="switch-track" aria-hidden="true">
+              <div id="band-th" class="switch-thumb"></div>
+            </div>
+            <span style="font-size:13px;color:var(--color-text-primary);font-weight:500;">
+              Bandeirado <span style="color:var(--color-text-tertiary);font-size:11px;">(Araucária/Cascavel)</span>
+            </span>
+          </div>
+
+          <!-- TRR Toggle Mode -->
+          <div class="switch-row" onclick="togTrr()">
+            <div id="trr-tk" class="switch-track" aria-hidden="true">
+              <div id="trr-th" class="switch-thumb"></div>
+            </div>
+            <span style="font-size:13px;color:var(--color-text-primary);font-weight:500;">
+              Modo TRR <span style="color:var(--color-text-tertiary);font-size:11px;">(só diesel)</span>
+            </span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Output Column -->
+      <div class="card" style="display:flex;flex-direction:column;min-height:380px;">
+        <div class="terminal-header">
+          <div class="window-controls">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+            <span class="window-title">Tabela Gerada</span>
+          </div>
+          <button id="cbtn" onclick="cpOut()" class="btn-copy">
+            <i class="ti ti-copy" style="font-size:15px;" aria-hidden="true"></i>Copiar
+          </button>
+        </div>
+        
+        <div class="terminal-body" style="flex:1;">
+          <pre id="out"></pre>
+        </div>
+        <p style="font-size:11px;color:var(--color-text-tertiary);text-align:right;margin-top:8px;margin-bottom:0;">
+          ADT = base + R$0,02 · arredondamento ↑ 4ª decimal
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Custom Theme Logic
+    function toggleTheme() {
+      const html = document.documentElement;
+      const currentTheme = html.getAttribute('data-theme');
+      const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', nextTheme);
+      
+      const sunIcon = document.getElementById('theme-icon-sun');
+      const moonIcon = document.getElementById('theme-icon-moon');
+      
+      if (nextTheme === 'dark') {
+        sunIcon.style.display = 'inline-block';
+        moonIcon.style.display = 'none';
+      } else {
+        sunIcon.style.display = 'none';
+        moonIcon.style.display = 'inline-block';
+      }
+    }
+
+    function setF(f) {
+      F = f;
+      $('f-fob').classList.toggle('active', f === 'fob');
+      $('f-cif').classList.toggle('active', f === 'cif');
+      $('frete-row').style.display = f === 'cif' ? '' : 'none';
+      if (f === 'fob') {
+        $('frete-val').value = '';
+      }
+      gen();
+    }
+
+    function togIcms() {
+      ICMS = !ICMS;
+      const tk = $('icms-tk');
+      const th = $('icms-th');
+      if (ICMS) {
+        tk.style.backgroundColor = 'var(--color-primary)';
+        tk.style.borderColor = 'var(--color-primary)';
+        th.style.transform = 'translateX(18px)';
+        th.style.backgroundColor = '#ffffff';
+      } else {
+        tk.style.backgroundColor = 'var(--color-background-secondary)';
+        tk.style.borderColor = 'var(--color-border-secondary)';
+        th.style.transform = 'translateX(0)';
+        th.style.backgroundColor = 'var(--color-text-secondary)';
+      }
+      document.querySelectorAll('.icms-element').forEach(el => {
+        el.style.display = ICMS ? '' : 'none';
+      });
+      gen();
+    }
+
+    function togBand() {
+      BAND = !BAND;
+      const tk = $('band-tk');
+      const th = $('band-th');
+      if (BAND) {
+        tk.style.backgroundColor = 'var(--color-primary)';
+        tk.style.borderColor = 'var(--color-primary)';
+        th.style.transform = 'translateX(18px)';
+        th.style.backgroundColor = '#ffffff';
+      } else {
+        tk.style.backgroundColor = 'var(--color-background-secondary)';
+        tk.style.borderColor = 'var(--color-border-secondary)';
+        th.style.transform = 'translateX(0)';
+        th.style.backgroundColor = 'var(--color-text-secondary)';
+      }
+      document.querySelectorAll('#pane-araucaria .std-prices, #pane-cascavel .std-prices').forEach(el => {
+        el.style.display = BAND ? 'none' : '';
+      });
+      document.querySelectorAll('#pane-araucaria .band-prices, #pane-cascavel .band-prices').forEach(el => {
+        el.style.display = BAND ? '' : 'none';
+      });
+      gen();
+    }
+
+    // Original Widget Scripting
+    const PRAZO={3:.002,4:.0027,5:.0033,6:.004,7:.0047,8:.0053,9:.006,10:.0067,11:.0073,12:.008,13:.0087,14:.0093,15:.01,16:.0133,17:.0142,18:.015,19:.0158,20:.0167,21:.0175,22:.0183,23:.0192,24:.02,25:.0208,26:.0217,27:.0225,28:.0233,29:.0242,30:.025};
+    const BASES={araucaria:{nome:'ARAUCÁRIA',pre:'ara',temEt:true},sarandi:{nome:'SARANDI',pre:'sar',temEt:true},cascavel:{nome:'CASCAVEL',pre:'cas',temEt:true},itajai:{nome:'ITAJAÍ',pre:'ita',temEt:true},paulinia:{nome:'PAULÍNIA',pre:'pau',temEt:false}};
+    const PRAZOS_OPTS=[{value:'ant',display:'À Vista (sem juros)'},{value:'1',display:'1 dia (sem juros)'},{value:'2',display:'2 dias (sem juros)'},...Array.from({length:28},(_,i)=>({value:String(i+3),display:`${i+3} dias — +${(PRAZO[i+3]*100).toFixed(2)}%`}))];
+    
+    let U='araucaria',T='a-vista',TRR=false,F='fob',ICMS=false,BAND=false;
+    
+    const c4=v=>Math.ceil(v*10000)/10000,f4=v=>v.toFixed(4),adt=(v,diff=0.02)=>Math.round((v+diff)*10000)/10000,toN=s=>parseFloat(s)||0,$=id=>document.getElementById(id);
+    
+    function getPct(val){if(val==='ant'||val==='1'||val==='2')return null;return PRAZO[parseInt(val)];}
+    function getLbl(val){if(val==='ant')return '💰 À VISTA';const d=parseInt(val);return `📆 ${d} ${d===1?'DIA':'DIAS'}`;}
+    
+    // Self-initializing
+    (() => {
+      const d=new Date();
+      $('date').value=`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+      
+      const s=$('dias');
+      [{value:'1',display:'1 dia — sem juros'},{value:'2',display:'2 dias — sem juros'},...Array.from({length:28},(_,i)=>({value:String(i+3),display:`${i+3} dias — +${(PRAZO[i+3]*100).toFixed(2)}%`}))].forEach(o=>{
+        const el=document.createElement('option');
+        el.value=o.value;
+        el.textContent=o.display;
+        if(o.value==='7') el.selected=true;
+        s.appendChild(el);
+      });
+      
+      ['prazo1','prazo2'].forEach((id,idx)=>{
+        const sel=$(id);
+        PRAZOS_OPTS.forEach(o=>{
+          const el=document.createElement('option');
+          el.value=o.value;
+          el.textContent=o.display;
+          sel.appendChild(el);
+        });
+        if(idx===0) sel.value='ant';
+        else sel.value='7';
+      });
+      
+      gen();
+    })();
+    
+    function swTab(t){
+      Object.keys(BASES).forEach(b=>{
+        $('pane-'+b).style.display=b===t?'':'none';
+        $('pt-'+b).className='ptab '+(b===t?'on':'off');
+      });
+    }
+    
+    function setU(u){
+      U=u;
+      Object.keys(BASES).forEach(b=>$('u-'+b).classList.toggle('active',b===u));
+      $('u-duas').classList.toggle('active',u==='duas');
+      $('duas-row').style.display=u==='duas'?'':'none';
+      if(u==='duas'&&T==='dois'){
+        T='a-vista';
+        setTUI('a-vista');
+      }
+      $('t-dois').style.display=u==='duas'?'none':'';
+      gen();
+    }
+    
+    function setTUI(t){
+      ['a-vista','prazo','dois'].forEach(x=>{
+        const e=$('t-'+x);
+        if(e) e.classList.toggle('active',x===t);
+      });
+      $('prazo-row').style.display=t==='prazo'?'':'none';
+      $('dois-row').style.display=t==='dois'?'':'none';
+    }
+    
+    function setT(t){
+      T=t;
+      setTUI(t);
+      gen();
+    }
+    
+    function togTrr(){
+      TRR=!TRR;
+      // Premium Switch Animation Logic
+      const tk = $('trr-tk');
+      const th = $('trr-th');
+      if (TRR) {
+        tk.style.backgroundColor = 'var(--color-primary)';
+        tk.style.borderColor = 'var(--color-primary)';
+        th.style.transform = 'translateX(18px)';
+        th.style.backgroundColor = '#ffffff';
+      } else {
+        tk.style.backgroundColor = 'var(--color-background-secondary)';
+        tk.style.borderColor = 'var(--color-border-secondary)';
+        th.style.transform = 'translateX(0)';
+        th.style.backgroundColor = 'var(--color-text-secondary)';
+      }
+      gen();
+    }
+    
+    function gv(id){return toN($(id)?$(id).value:0);}
+    
+    function calcB(base,pct){
+      const cfg=BASES[base],p=cfg.pre;
+      const isB = BAND && (base === 'araucaria' || base === 'cascavel');
+      const suffix = isB ? '-b' : '';
+      const adtDiff = isB ? 0.03 : 0.02;
+      
+      const ap=v=>pct!=null?c4(v*(1+pct)):v;
+      const fr=F==='cif'?toN($('frete-val').value):0;
+      
+      const gc=c4(ap(gv(p+'-gc'+suffix))+fr);
+      const b5=c4(ap(gv(p+'-bs500'+suffix))+fr);
+      const b1=c4(ap(gv(p+'-bs10'+suffix))+fr);
+      
+      let et=null;
+      if(cfg.temEt){
+        const icmsVal = ICMS ? gv(p+'-icms') : 0;
+        const eB=gv(p+'-etanol'+suffix)+icmsVal;
+        const etInterest=pct!=null?c4(eB*(1+pct)):parseFloat(eB.toFixed(4));
+        et=c4(etInterest+fr);
+      }
+      return{gc,gcA:adt(gc,adtDiff),b5,b5A:adt(b5,adtDiff),b1,b1A:adt(b1,adtDiff),et};
+    }
+    
+    function bL(pr,compact){
+      const L=[];
+      if(!TRR){
+        compact?L.push(`⛽ ${f4(pr.gc)} GAS C / ${f4(pr.gcA)} ADT`):(L.push(` ⛽R$ ${f4(pr.gc)} GAS C`),L.push(` ⛽R$ ${f4(pr.gcA)} GAS C ADT`));
+      }
+      compact?(L.push(`⛽ ${f4(pr.b5)} BS500 / ${f4(pr.b5A)} ADT`),L.push(`⛽ ${f4(pr.b1)} BS10  / ${f4(pr.b1A)} ADT`)):(L.push(` ⛽R$ ${f4(pr.b5)} BS500`),L.push(` ⛽R$ ${f4(pr.b5A)} BS500 ADT`),L.push(` ⛽R$ ${f4(pr.b1)} BS10`),L.push(` ⛽R$ ${f4(pr.b1A)} BS10 ADT`));
+      if(!TRR&&pr.et!=null) compact?L.push(`⛽ ${f4(pr.et)} ETANOL`):L.push(` ⛽R$ ${f4(pr.et)} ETANOL`);
+      return L.join('\n');
+    }
+    
+    function gen(){
+      const dt=$('date').value;
+      const frMode = F === 'cif' ? 'CIF' : 'FOB';
+      let out='';
+      if(U==='duas'){
+        const b1=$('base1').value,b2=$('base2').value;
+        const isB1 = BAND && (b1==='araucaria' || b1==='cascavel');
+        const isB2 = BAND && (b2==='araucaria' || b2==='cascavel');
+        const nm1=BASES[b1].nome + (isB1 ? ' - BANDEIRADO' : '');
+        const nm2=BASES[b2].nome + (isB2 ? ' - BANDEIRADO' : '');
+        const pct=T==='a-vista'?null:getPct($('dias').value);
+        const hdr=T==='a-vista'?`📅 ${dt} | ${frMode} - *À VISTA*`:`📅 ${dt} | ${frMode} | PRAZO *${$('dias').value} ${parseInt($('dias').value)===1?'DIA':'DIAS'}*`;
+        const p1=calcB(b1,pct),p2=calcB(b2,pct);
+        out=`${hdr}\n\n📍 ${nm1}\n${bL(p1,true)}\n\n📍 ${nm2}\n${bL(p2,true)}`;
+      }else if(T==='a-vista'){
+        const isBU = BAND && (U==='araucaria' || U==='cascavel');
+        const nm=BASES[U].nome + (isBU ? ' - BANDEIRADO' : '');
+        const pr=calcB(U,null);
+        out=`UNIDADE: ${nm} ${dt}\nFRETE: ${frMode} - *À VISTA*\n\n${bL(pr,false)}`;
+      }else if(T==='prazo'){
+        const isBU = BAND && (U==='araucaria' || U==='cascavel');
+        const nm=BASES[U].nome + (isBU ? ' - BANDEIRADO' : '');
+        const val=$('dias').value,pct=getPct(val),pr=calcB(U,pct),d=parseInt(val);
+        out=`UNIDADE: ${nm} ${dt}\nFRETE: ${frMode}\nPRAZO: *${d} ${d===1?'DIA':'DIAS'}*\n\n${bL(pr,false)}`;
+      }else if(T==='dois'){
+        const isBU = BAND && (U==='araucaria' || U==='cascavel');
+        const nm=BASES[U].nome + (isBU ? ' - BANDEIRADO' : '');
+        const v1=$('prazo1').value,v2=$('prazo2').value,p1=calcB(U,getPct(v1)),p2=calcB(U,getPct(v2));
+        out=`📅 ${dt} | ${nm} | ${frMode}\n\n${getLbl(v1)}\n${bL(p1,true)}\n\n${getLbl(v2)}\n${bL(p2,true)}`;
+      }
+      $('out').textContent=out;
+    }
+    
+    function cpOut(){
+      navigator.clipboard.writeText($('out').textContent).then(()=>{
+        const b=$('cbtn');
+        b.innerHTML='<i class="ti ti-check" style="font-size:15px;" aria-hidden="true"></i> Copiado!';
+        setTimeout(()=>{
+          b.innerHTML='<i class="ti ti-copy" style="font-size:15px;" aria-hidden="true"></i> Copiar';
+        },2500);
+      });
+    }
+  </script>
+</body>
+</html>
