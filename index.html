@@ -756,7 +756,7 @@
 
 
           <!-- ICMS Toggle Mode -->
-          <div class="switch-row" onclick="togIcms()" style="margin-bottom: 8px;">
+          <div id="icms-row" class="switch-row" onclick="togIcms()" style="margin-bottom: 8px;">
             <div id="icms-tk" class="switch-track" aria-hidden="true">
               <div id="icms-th" class="switch-thumb"></div>
             </div>
@@ -766,7 +766,7 @@
           </div>
 
           <!-- Bandeirado Toggle Mode -->
-          <div class="switch-row" onclick="togBand()" style="margin-bottom: 8px;">
+          <div id="band-row" class="switch-row" onclick="togBand()" style="margin-bottom: 8px;">
             <div id="band-tk" class="switch-track" aria-hidden="true">
               <div id="band-th" class="switch-thumb"></div>
             </div>
@@ -920,12 +920,44 @@
       const d=new Date();
       $('date').value=`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
       
+      updateVisibility();
       updatePrazoSelects();
       $('brand-logo').src = LOGO_ESTRADA;
       
       gen();
     })();
     
+    function updateVisibility() {
+      const isTrr = (COMPANY === 'trr');
+      const bases = ['araucaria', 'sarandi', 'itajai', 'paulinia'];
+      bases.forEach(b => {
+        const pt = $('pt-' + b);
+        if (pt) pt.style.display = isTrr ? 'none' : '';
+        const u = $('u-' + b);
+        if (u) u.style.display = isTrr ? 'none' : '';
+      });
+      const uDuas = $('u-duas');
+      if (uDuas) uDuas.style.display = isTrr ? 'none' : '';
+
+      document.querySelectorAll('input').forEach(input => {
+        const id = input.id;
+        if (id.endsWith('-gc') || id.endsWith('-gc-b') || id.endsWith('-etanol') || id.endsWith('-etanol-b')) {
+          const ir = input.closest('.ir');
+          if (ir) {
+            ir.style.display = isTrr ? 'none' : '';
+          }
+        }
+      });
+
+      const fFob = $('f-fob');
+      if (fFob) fFob.style.display = isTrr ? 'none' : '';
+
+      const icmsRow = $('icms-row');
+      if (icmsRow) icmsRow.style.display = isTrr ? 'none' : '';
+      const bandRow = $('band-row');
+      if (bandRow) bandRow.style.display = isTrr ? 'none' : '';
+    }
+
     function toggleCompany() {
       COMPANY = COMPANY === "estrada" ? "trr" : "estrada";
       document.documentElement.setAttribute("data-company", COMPANY);
@@ -943,7 +975,12 @@
         $("brand-logo").src = LOGO_TRR;
         $("brand-title").textContent = "TRR Terra Diesel";
         
+        if (ICMS) togIcms();
+        if (BAND) togBand();
+        
+        swTab("cascavel");
         setU("cascavel");
+        setF("cif");
         if (!TRR) togTrr();
       } else {
         tk.style.backgroundColor = "var(--color-background-secondary)";
@@ -956,9 +993,12 @@
         $("brand-logo").src = LOGO_ESTRADA;
         $("brand-title").textContent = "Estrada Distribuidora";
         
+        swTab("araucaria");
         setU("araucaria");
+        setF("fob");
         if (TRR) togTrr();
       }
+      updateVisibility();
       updatePrazoSelects();
       gen();
     }
