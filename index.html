@@ -910,7 +910,7 @@
     function getPct(val){
       if(val==='ant'||val==='1'||val==='2') return null;
       const d = parseInt(val);
-      const dailyRate = COMPANY === 'estrada' ? (0.02 / 30) : (0.01 / 30);
+      const dailyRate = COMPANY === 'estrada' ? (0.025 / 30) : (0.01 / 30);
       return d * dailyRate;
     }
     function getLbl(val){if(val==='ant')return '💰 À VISTA';const d=parseInt(val);return `📆 ${d} ${d===1?'DIA':'DIAS'}`;}
