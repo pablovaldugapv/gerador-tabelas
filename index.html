@@ -1128,17 +1128,18 @@
       const isB = BAND && (base === 'araucaria' || base === 'cascavel');
       const suffix = isB ? '-b' : '';
       const adtDiff = isB ? 0.03 : 0.02;
+      const margin = 0.0004;
       
       const ap=v=>pct!=null?c4(v*(1+pct)):v;
       
-      const gc=c4(ap(gv(p+'-gc'+suffix))+fr);
-      const b5=c4(ap(gv(p+'-bs500'+suffix))+fr);
-      const b1=c4(ap(gv(p+'-bs10'+suffix))+fr);
+      const gc=c4(ap(gv(p+'-gc'+suffix) + margin)+fr);
+      const b5=c4(ap(gv(p+'-bs500'+suffix) + margin)+fr);
+      const b1=c4(ap(gv(p+'-bs10'+suffix) + margin)+fr);
       
       let et=null;
       if(cfg.temEt){
         const icmsVal = ICMS ? gv(p+'-icms') : 0;
-        const eB=gv(p+'-etanol'+suffix)+icmsVal;
+        const eB=(gv(p+'-etanol'+suffix) + margin)+icmsVal;
         const etInterest=pct!=null?c4(eB*(1+pct)):parseFloat(eB.toFixed(4));
         et=c4(etInterest+fr);
       }
